@@ -63,7 +63,7 @@ define('DEFAULT_TARGET_CHARSET', 'UTF-8');
 define('DEFAULT_BR_TEXT', "\r\n");
 define('DEFAULT_SPAN_TEXT', " ");
 if (!defined('MAX_FILE_SIZE')) {
-    define('MAX_FILE_SIZE', 600000);	
+    define('MAX_FILE_SIZE', 600000);
 }
 
 // helper functions
@@ -986,10 +986,10 @@ class simple_html_dom
     protected $cursor;
     protected $parent;
     protected $noise = array();
-    protected $token_blank = " \t\r\n";
-    protected $token_equal = ' =/>';
-    protected $token_slash = " />\r\n\t";
-    protected $token_attr = ' >';
+    const token_blank = " \t\r\n";
+    const token_equal = ' =/>';
+    const token_slash = " />\r\n\t";
+    const token_attr = ' >';
     // Note that this is referenced by a child node, and so it needs to be public for that node to see this information.
     public $_charset = '';
     public $_target_charset = '';
@@ -1273,8 +1273,8 @@ class simple_html_dom
         {
             $this->char = (++$this->pos<$this->size) ? $this->doc[$this->pos] : null; // next
             // This represents the change in the simple_html_dom trunk from revision 180 to 181.
-            // $this->skip($this->token_blank_t);
-            $this->skip($this->token_blank);
+            // $this->skip(self::token_blank_t);
+            $this->skip(self::token_blank);
             $tag = $this->copy_until_char('>');
 
             // skip attributes in end tag
@@ -1335,7 +1335,7 @@ class simple_html_dom
         $node = new simple_html_dom_node($this);
         $node->_[HDOM_INFO_BEGIN] = $this->cursor;
         ++$this->cursor;
-        $tag = $this->copy_until($this->token_slash);
+        $tag = $this->copy_until(self::token_slash);
         $node->tag_start = $begin_tag_pos;
 
         // doctype, cdata & comments...
@@ -1394,7 +1394,7 @@ class simple_html_dom
         }
 
         $guard = 0; // prevent infinity loop
-        $space = array($this->copy_skip($this->token_blank), '', '');
+        $space = array($this->copy_skip(self::token_blank), '', '');
 
         // attributes
         do
@@ -1403,7 +1403,7 @@ class simple_html_dom
             {
                 break;
             }
-            $name = $this->copy_until($this->token_equal);
+            $name = $this->copy_until(self::token_equal);
             if ($guard===$this->pos)
             {
                 $this->char = (++$this->pos<$this->size) ? $this->doc[$this->pos] : null; // next
@@ -1435,7 +1435,7 @@ class simple_html_dom
             }
 
             if ($name!=='/' && $name!=='') {
-                $space[1] = $this->copy_skip($this->token_blank);
+                $space[1] = $this->copy_skip(self::token_blank);
                 $name = $this->restore_noise($name);
                 if ($this->lowercase) $name = strtolower($name);
                 if ($this->char==='=') {
@@ -1449,7 +1449,7 @@ class simple_html_dom
                     if ($this->char!='>') $this->char = $this->doc[--$this->pos]; // prev
                 }
                 $node->_[HDOM_INFO_SPACE][] = $space;
-                $space = array($this->copy_skip($this->token_blank), '', '');
+                $space = array($this->copy_skip(self::token_blank), '', '');
             }
             else
                 break;
@@ -1492,7 +1492,7 @@ class simple_html_dom
             return;
         }
 
-        $space[2] = $this->copy_skip($this->token_blank);
+        $space[2] = $this->copy_skip(self::token_blank);
         switch ($this->char) {
             case '"':
                 $node->_[HDOM_INFO_QUOTE][] = HDOM_QUOTE_DOUBLE;
@@ -1508,7 +1508,7 @@ class simple_html_dom
                 break;
             default:
                 $node->_[HDOM_INFO_QUOTE][] = HDOM_QUOTE_NO;
-                $node->attr[$name] = $this->restore_noise($this->copy_until($this->token_attr));
+                $node->attr[$name] = $this->restore_noise($this->copy_until(self::token_attr));
         }
         // PaperG: Attributes should not have \r or \n in them, that counts as html whitespace.
         $node->attr[$name] = str_replace("\r", "", $node->attr[$name]);
